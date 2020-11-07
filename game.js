@@ -20,6 +20,14 @@
         iFood = new Image(),
         aEat = new Audio(),
         aDie = new Audio();
+    function resize(){
+        var w = window.innerWidth / canvas.width;
+        var h = window.innerHeight / canvas.height;
+        var scale = Math.min(h, w);
+        canvas.style.width = (canvas.width * scale) + 'px';
+        canvas.style.height = (canvas.height * scale) + 'px';
+    }
+    window.addEventListener('resize', resize, false);
 
     window.requestAnimationFrame = (function () {
         return window.requestAnimationFrame ||
@@ -46,25 +54,24 @@
             this.y < rect.y + rect.height &&
             this.y + this.height > rect.y);
         }
-    };
-    this.fill = function (ctx) {
-        if (ctx === undefined) {
-            window.console.warn('Missing parameters on function fill');
-        } else {
-            ctx.fillRect(this.x, this.y, this.width, this.height);
-        }
-    };
-    this.drawImage = function (ctx, img) {
-        if (img === undefined) {
-            window.console.warn('Missing parameters on function drawImage');
-        } else {
-            if (img.width) {
-                ctx.drawImage(img, this.x, this.y);
+        this.fill = function (ctx) {
+            if (ctx === undefined) {
+                window.console.warn('Missing parameters on function fill');
             } else {
-                ctx.strokeRect(this.x, this.y, this.width, this.height);
+                ctx.fillRect(this.x, this.y, this.width, this.height);
             }
-        }
-    };
+        };
+        this.drawImage = function (ctx, img) {
+            if (img === undefined) {
+                window.console.warn('Missing parameters on function drawImage');
+            } else {
+                if (img.width) {
+                    ctx.drawImage(img, this.x, this.y);
+                } else {
+                    ctx.strokeRect(this.x, this.y, this.width, this.height);
+                }
+            }
+        };
     }
     Rectangle.prototype = {
         constructor: Rectangle,
@@ -241,10 +248,10 @@
             }
             // Wall Intersects
             //for(i = 0, l = wall.length; i < l; i += 1){
-            // if (food.intersects(wall[i])) {
-            // food.x = random(canvas.width / 10 - 1) * 10;
-            // food.y = random(canvas.height / 10 - 1) * 10;
-            // }
+            // if (food.intersects(wall[i])) { 
+            // food.x = random(canvas.width / 10 - 1) * 10; 
+            // food.y = random(canvas.height / 10 - 1) * 10; 
+            // } 
             //
             // if(body[0].intersects(wall[i])){
             // gameover = true;
