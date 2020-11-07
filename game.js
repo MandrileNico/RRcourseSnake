@@ -8,26 +8,24 @@
         KEY_DOWN = 40,
         canvas = null,
         ctx = null,
+        buffer = null,
+        bufferCtx = null,
+        bufferScale = 1,
+        bufferOffsetX = 0,
+        bufferOffsetY = 0,
         lastPress = null,
         pause = true,
         gameover = true,
-        dir = 0,
-        score = 0,
-        //wall = [],
+        fullscreen = false,
         body = [],
         food = null,
+        //var wall = [],
+        dir = 0,
+        score = 0,
         iBody = new Image(),
         iFood = new Image(),
         aEat = new Audio(),
-        aDie = new Audio();
-    function resize(){
-        var w = window.innerWidth / canvas.width;
-        var h = window.innerHeight / canvas.height;
-        var scale = Math.min(h, w);
-        canvas.style.width = (canvas.width * scale) + 'px';
-        canvas.style.height = (canvas.height * scale) + 'px';
-    }
-    window.addEventListener('resize', resize, false);
+        aDie = new Audio(); 
 
     window.requestAnimationFrame = (function () {
         return window.requestAnimationFrame ||
@@ -38,40 +36,17 @@
         };
     }());
     document.addEventListener('keydown', function (evt) {
-        lastPress = evt.which;
-    }, false);
+        if (evt.which >= 37 && evt.which <= 40) {
+            evt.preventDefault();
+            }
+            lastPress = evt.which;
+        }, false);
+
     function Rectangle(x, y, width, height) {
         this.x = (x === undefined) ? 0 : x;
         this.y = (y === undefined) ? 0 : y;
         this.width = (width === undefined) ? 0 : width;
         this.height = (height === undefined) ? this.width : height;
-        this.intersects = function (rect) {
-        if (rect === undefined) {
-            window.console.warn('Missing parameters on function intersects');
-        } else {
-            return (this.x < rect.x + rect.width &&
-            this.x + this.width > rect.x &&
-            this.y < rect.y + rect.height &&
-            this.y + this.height > rect.y);
-        }
-        this.fill = function (ctx) {
-            if (ctx === undefined) {
-                window.console.warn('Missing parameters on function fill');
-            } else {
-                ctx.fillRect(this.x, this.y, this.width, this.height);
-            }
-        };
-        this.drawImage = function (ctx, img) {
-            if (img === undefined) {
-                window.console.warn('Missing parameters on function drawImage');
-            } else {
-                if (img.width) {
-                    ctx.drawImage(img, this.x, this.y);
-                } else {
-                    ctx.strokeRect(this.x, this.y, this.width, this.height);
-                }
-            }
-        };
     }
     Rectangle.prototype = {
         constructor: Rectangle,
@@ -104,36 +79,17 @@
             }
         }
     };
-    /*Rectangle.prototype.intersects = function (rect) {
-        if (rect === undefined) {
-            window.console.warn('Missing parameters on function intersects');
-        } else {
-            return (this.x < rect.x + rect.width &&
-            this.x + this.width > rect.x &&
-            this.y < rect.y + rect.height &&
-            this.y + this.height > rect.y);
-        }
-    };
-    Rectangle.prototype.fill = function (ctx) {
-        if (ctx === undefined) {
-            window.console.warn('Missing parameters on function fill');
-        } else {
-            ctx.fillRect(this.x, this.y, this.width, this.height);
-        }
-    };
-    Rectangle.prototype.drawImage = function (ctx, img) {
-        if (img === undefined) {
-            window.console.warn('Missing parameters on function drawImage');
-        } else {
-            if (img.width) {
-                ctx.drawImage(img, this.x, this.y);
-            }else {
-                ctx.strokeRect(this.x, this.y, this.width, this.height);
-            }
-        }
-    };*/
     function random(max) {
         return ~~(Math.random() * max);
+    }
+    function resize(){
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        var w = window.innerWidth / buffer.width;
+        var h = window.innerHeight / buffer.height;
+        bufferScale = Math.min(h, w);
+        bufferOffsetX = (canvas.width - (buffer.width * bufferScale)) / 2;
+        bufferOffsetY = (canvas.height - (buffer.height * bufferScale)) / 2;
     }
     function canPlayOgg() {
         var aud = new Audio();
@@ -294,6 +250,15 @@
         // Get canvas and context
         canvas = document.getElementById('canvas');
         ctx = canvas.getContext('2d');
+        canvas.width = 600;
+        canvas.height = 300;
+
+        // Load buffer
+        buffer = document.createElement('canvas');
+        bufferCtx = buffer.getContext('2d');
+        buffer.width = 300;
+        buffer.height = 150;
+
         // Load assets
         iBody.src = 'assets/body.png';
         iFood.src = 'assets/fruit.png';
@@ -316,6 +281,7 @@
         repaint();
     }
     window.addEventListener('load', init, false);
+    window.addEventListener('resize', resize, false);
 }(window));
 
 // /* RequestAnimationFrame (deltaTime) */
