@@ -15,13 +15,18 @@
         scenes = [],
         mainScene = null,
         gameScene = null,
+        highscoresScene = null,
         body = [],
         food = null,
-        //var wall = [],
+        food2= null,
+        wall = [],
+        highscores = [],
+        posHighscore = 10,
         dir = 0,
         score = 0,
         iBody = new Image(),
         iFood = new Image(),
+        iFood2 = new Image(),
         aEat = new Audio(),
         aDie = new Audio();
 
@@ -94,6 +99,17 @@
     function random(max) {
         return ~~(Math.random() * max);
     }
+    function addHighscore(score) {
+        posHighscore = 0;
+        while (highscores[posHighscore] > score && posHighscore < highscores.length) {
+            posHighscore += 1;
+        }
+        highscores.splice(posHighscore, 0, score);
+        if (highscores.length > 10) {
+            highscores.length = 10;
+        }
+        localStorage.highscores = highscores.join(',');
+    }
     function repaint() {
         window.requestAnimationFrame(repaint);
         if (scenes.length) {
@@ -106,22 +122,35 @@
             scenes[currentScene].act();
         }
     }
+    function madeWalls(){
+        for(var i=0; i<=canvas.height-10; i+=10){
+            wall.push(new Rectangle(0, i, 10, 10));
+            wall.push(new Rectangle(canvas.width-10, i, 10, 10));
+        }
+        for(var i=0; i<=canvas.width-10; i+=10){
+            wall.push(new Rectangle(i,0 , 10, 10));
+            wall.push(new Rectangle(i,canvas.height-10 , 10, 10));
+        }
+    }
     function init() {
         // Get canvas and context
         canvas = document.getElementById('canvas');
         ctx = canvas.getContext('2d');
         // Load assets
-        iBody.src = 'assets/body.png';
-        iFood.src = 'assets/fruit.png';
-        aEat.src = 'assets/chomp.m4a';
-        aDie.src = 'assets/dies.m4a';
+        iBody.src = 'image/body.png';
+        iFood.src = 'image/apple.png';
+        iFood2.src = 'image/greenApple.png';
+        aEat.src = 'sound/eat.m4a';
+        aDie.src = 'sound/dies.m4a';
         // Create food
         food = new Rectangle(80, 80, 10, 10);
+        food2 = new Rectangle(120, 1000, 10, 10);
         // Create walls
-        //wall.push(new Rectangle(50, 50, 10, 10));
-        //wall.push(new Rectangle(50, 100, 10, 10));
-        //wall.push(new Rectangle(100, 50, 10, 10));
-        //wall.push(new Rectangle(100, 100, 10, 10));
+        madeWalls();
+        // Load saved highscores
+        if (localStorage.highscores) {
+            highscores = localStorage.highscores.split(',');
+        }
         // Start game
         run();
         repaint();
@@ -141,7 +170,7 @@
     mainScene.act = function () {
         // Load next scene
         if (lastPress === KEY_ENTER) {
-            loadScene(gameScene);
+            loadScene(highscoresScene);
             lastPress = null;
         }
     };
@@ -156,11 +185,13 @@
         body.push(new Rectangle(0, 0, 10, 10));
         food.x = random(canvas.width / 10 - 1) * 10;
         food.y = random(canvas.height / 10 - 1) * 10;
+        food2.x = random(canvas.width / 10 - 1) * 10;
+        food2.y = random(canvas.height / 10 - 1) * 10;
         gameover = false;
     };
     gameScene.paint = function (ctx) {
         var i = 0,
-        l = 0;
+            l = 0;
         // Clean canvas
         ctx.fillStyle = '#030';
         ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -169,14 +200,15 @@
         for (i = 0, l = body.length; i < l; i += 1) {
             body[i].drawImage(ctx, iBody);
         }
-        // Draw walls
-        //ctx.fillStyle = '#999';
-        //for (i = 0, l = wall.length; i < l; i += 1) {
-        // wall[i].fill(ctx);
-        //}
+        //Draw walls
+        ctx.fillStyle = '#999';
+        for (i = 0, l = wall.length; i < l; i += 1) {
+            wall[i].fill(ctx);
+        }
         // Draw food
         ctx.strokeStyle = '#f00';
         food.drawImage(ctx, iFood);
+        food2.drawImage(ctx, iFood2);
         // Draw score
         ctx.fillStyle = '#fff';
         ctx.textAlign = 'left';
@@ -195,11 +227,11 @@
     };
     gameScene.act = function () {
         var i = 0,
-        l = 0;
+            l = 0;
         if (!pause) {
             // GameOver Reset
             if (gameover) {
-                loadScene(mainScene);
+                loadScene(highscoresScene);
             }
             // Move Body
             for (i = body.length - 1; i > 0; i -= 1) {
@@ -219,7 +251,7 @@
             if (lastPress === KEY_LEFT && dir !== 1) {
                 dir = 3;
             }
-            // Move Head
+            // Move HeadSS
             if (dir === 0) {
                 body[0].y -= 10;
             }
@@ -253,24 +285,37 @@
                 food.y = random(canvas.height / 10 - 1) * 10;
                 aEat.play();
             }
-            // Wall Intersects
-            //for (i = 0, l = wall.length; i < l; i += 1) {
-            // if (food.intersects(wall[i])) {
-            // food.x = random(canvas.width / 10 - 1) * 10;
-            // food.y = random(canvas.height / 10 - 1) * 10;
-            // }
-            //
-            // if (body[0].intersects(wall[i])) {
-            // gameover = true;
-            // pause = true;
-            // }
-            //}
+            if (body[0].intersects(food2)) {
+                score += 10;
+                food2.x = random(canvas.width / 10 - 1) * 10;
+                food2.y = random(canvas.height / 10 - 1) * 10;
+                aEat.play();
+            }
+            //Wall Intersects
+            for (var i = 0 ; i < wall.length; i ++) {
+                if (food.intersects(wall[i])) {
+                    food.x = random(canvas.width / 10 - 1) * 10;
+                    food.y = random(canvas.height / 10 - 1) * 10;
+                }
+                if (food2.intersects(wall[i])) {
+                    food2.x = random(canvas.width / 10 - 1) * 10;
+                    food2.y = random(canvas.height / 10 - 1) * 10;
+                }
+                if ((body[0].intersects(wall[i])) && (gameover != true)) {
+                    gameover = true;
+                    pause = true;
+                    aDie.play();
+                    addHighscore(score);
+                }
+            }
             // Body Intersects
-            for (i = 2, l = body.length; i < l; i += 1) {
+            for (var i = 2; i < body.length; i ++) {
                 if (body[0].intersects(body[i])) {
                     gameover = true;
                     pause = true;
                     aDie.play();
+                    addHighscore(score);
+                    console.log('pasa al if de walls')
                 }
             }
         }
@@ -280,7 +325,37 @@
             lastPress = null;
         }    
     };
+    // Highscore Scene
+    highscoresScene = new Scene();
+    highscoresScene.paint = function (ctx) {
+        var i = 0,
+            l = 0;
+        // Clean canvas
+        ctx.fillStyle = '#030';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        // Draw title
+        ctx.fillStyle = '#fff';
+        ctx.textAlign = 'center';
+        ctx.fillText('HIGH SCORES', 150, 30);
+        // Draw high scores
+        ctx.textAlign = 'right';
+        for (i = 0, l = highscores.length; i < l; i += 1) {
+            if (i === posHighscore) {
+                ctx.fillText('*' + highscores[i], 180, 40 + i * 10);
+            } else {
+                ctx.fillText(highscores[i], 180, 40 + i * 10);
+            }
+        }
+    };
+    highscoresScene.act = function () {
+        // Load next scene
+        if (lastPress === KEY_ENTER) {
+            loadScene(gameScene);
+            lastPress = null;
+        }
+    };
     window.addEventListener('load', init, false);
-    // window.addEventListener('resize', resize, false);
 }(window));
+
+
 
