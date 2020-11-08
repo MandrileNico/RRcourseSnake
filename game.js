@@ -191,7 +191,8 @@
     };
     gameScene.paint = function (ctx) {
         var i = 0,
-            l = 0;
+            l = 0,
+            n = 0;
         // Clean canvas
         ctx.fillStyle = '#030';
         ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -290,6 +291,25 @@
                 food2.x = random(canvas.width / 10 - 1) * 10;
                 food2.y = random(canvas.height / 10 - 1) * 10;
                 aEat.play();
+                fetch('https://jsonplaceholder.typicode.com/posts',{
+                    method: 'POST',
+                    body: JSON.stringify({
+                    Score: score,
+                    userId: 1,
+                }),
+                headers: {
+                    'Content-type': 'application/json; charset=UTF-8',
+                },
+                })
+                    .then(function (response){
+                        return response.json();
+                    })
+                    .then(function(json){
+                        return console.log('Score sent successfully');
+                    })
+                    .catch(function(error) {
+                        return console.log('Error trying to send the score');
+                    })
             }
             //Wall Intersects
             for (var i = 0 ; i < wall.length; i ++) {
