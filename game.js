@@ -27,6 +27,7 @@
         iBody = new Image(),
         iFood = new Image(),
         iFood2 = new Image(),
+        eWall = new Image(),
         aEat = new Audio(),
         aDie = new Audio();
 
@@ -142,6 +143,7 @@
         iFood2.src = 'image/greenApple.png';
         aEat.src = 'sound/eat.m4a';
         aDie.src = 'sound/dies.m4a';
+        eWall.src ='image/walls.png';
         // Create food
         food = new Rectangle(80, 80, 10, 10);
         food2 = new Rectangle(120, 1000, 10, 10);
@@ -194,7 +196,7 @@
             l = 0,
             n = 0;
         // Clean canvas
-        ctx.fillStyle = '#030';
+        ctx.fillStyle = '#030'
         ctx.fillRect(0, 0, canvas.width, canvas.height);
         // Draw player
         ctx.strokeStyle = '#0f0';
@@ -204,7 +206,8 @@
         //Draw walls
         ctx.fillStyle = '#999';
         for (i = 0, l = wall.length; i < l; i += 1) {
-            wall[i].fill(ctx);
+            //wall[i].fill(ctx);
+            wall[i].drawImage(ctx, eWall);
         }
         // Draw food
         ctx.strokeStyle = '#f00';
@@ -291,25 +294,26 @@
                 food2.x = random(canvas.width / 10 - 1) * 10;
                 food2.y = random(canvas.height / 10 - 1) * 10;
                 aEat.play();
-                fetch('https://jsonplaceholder.typicode.com/posts',{
+                fetch(`https://jsonplaceholder.typicode.com/user/1/posts/?score=${score}`,{
                     method: 'POST',
-                    body: JSON.stringify({
+                    body:JSON.stringify({
                     Score: score,
-                    userId: 1,
+                    userId: 2,
                 }),
                 headers: {
                     'Content-type': 'application/json; charset=UTF-8',
                 },
                 })
-                    .then(function (response){
-                        return response.json();
-                    })
-                    .then(function(json){
-                        return console.log('Score sent successfully');
-                    })
-                    .catch(function(error) {
-                        return console.log('Error trying to send the score');
-                    })
+                .then(function (response){
+                    return response.json();
+                })
+                .then(function(json){
+                    return console.log('Score sent successfully', json);
+
+                })
+                .catch(function(error) {
+                    return console.log('Error trying to send the score');
+                })
             }
             //Wall Intersects
             for (var i = 0 ; i < wall.length; i ++) {
@@ -335,7 +339,6 @@
                     pause = true;
                     aDie.play();
                     addHighscore(score);
-                    console.log('pasa al if de walls')
                 }
             }
         }
