@@ -28,8 +28,10 @@
         iFood = new Image(),
         iFood2 = new Image(),
         eWall = new Image(),
+        back = new Image(),
         aEat = new Audio(),
         aDie = new Audio();
+
 
     window.requestAnimationFrame = (function () {
         return window.requestAnimationFrame ||
@@ -165,6 +167,7 @@
         aEat.src = 'sound/eat.m4a';
         aDie.src = 'sound/dies.m4a';
         eWall.src ='image/walls.png';
+        back.src = 'image/background.png';
         // Create food
         food = new Rectangle(80, 80, 10, 10);
         food2 = new Rectangle(120, 1000, 10, 10);
@@ -217,8 +220,9 @@
             l = 0,
             n = 0;
         // Clean canvas
-        ctx.fillStyle = '#030'
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        //ctx.fillStyle = '#030'
+        //ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(back,0,0);
         // Draw player
         ctx.strokeStyle = '#0f0';
         for (i = 0, l = body.length; i < l; i += 1) {
