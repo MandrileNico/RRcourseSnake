@@ -294,11 +294,11 @@
                 food2.x = random(canvas.width / 10 - 1) * 10;
                 food2.y = random(canvas.height / 10 - 1) * 10;
                 aEat.play();
-                fetch(`https://jsonplaceholder.typicode.com/user/1/posts/?score=${score}`,{
+                var  userId = 1;
+                fetch(`https://jsonplaceholder.typicode.com/user/${userId}/posts/?Score=${score}`,{
                     method: 'POST',
-                    body:JSON.stringify({
-                    Score: score,
-                    userId: 2,
+                    body:  JSON.stringify({
+                     Score: score,
                 }),
                 headers: {
                     'Content-type': 'application/json; charset=UTF-8',
