@@ -133,6 +133,27 @@
             wall.push(new Rectangle(i,canvas.height-10 , 10, 10));
         }
     }
+    function sendToSerever(Iduser){
+        var userId = Iduser;
+        fetch(`https://jsonplaceholder.typicode.com/user/${userId}/posts/?Score=${score}`,{
+            method: 'POST',
+            body:  JSON.stringify({
+                Score: score,
+            }),
+            headers: {
+                'Content-type': 'application/json; charset=UTF-8',
+            },
+        })
+        .then(function (response){
+            return response.json();
+        })
+        .then(function(json){
+            return console.log('Score sent successfully', json);
+        })
+        .catch(function(error) {
+            return console.log('Error trying to send the score');
+        })
+    }
     function init() {
         // Get canvas and context
         canvas = document.getElementById('canvas');
@@ -295,25 +316,7 @@
                 food2.y = random(canvas.height / 10 - 1) * 10;
                 aEat.play();
                 var  userId = 1;
-                fetch(`https://jsonplaceholder.typicode.com/user/${userId}/posts/?Score=${score}`,{
-                    method: 'POST',
-                    body:  JSON.stringify({
-                     Score: score,
-                }),
-                headers: {
-                    'Content-type': 'application/json; charset=UTF-8',
-                },
-                })
-                .then(function (response){
-                    return response.json();
-                })
-                .then(function(json){
-                    return console.log('Score sent successfully', json);
-
-                })
-                .catch(function(error) {
-                    return console.log('Error trying to send the score');
-                })
+                sendToSerever(userId);
             }
             //Wall Intersects
             for (var i = 0 ; i < wall.length; i ++) {
