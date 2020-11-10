@@ -28,19 +28,10 @@
         iFood = new Image(),
         iFood2 = new Image(),
         eWall = new Image(),
+        logo = new Image(),
         back = new Image(),
         aEat = new Audio(),
         aDie = new Audio();
-
-
-    window.requestAnimationFrame = (function () {
-        return window.requestAnimationFrame ||
-            window.mozRequestAnimationFrame ||
-            window.webkitRequestAnimationFrame ||
-            function (callback) {
-            window.setTimeout(callback, 17);
-        };
-    }());
     document.addEventListener('keydown', function (evt) {
         if (evt.which >= 37 && evt.which <= 40) {
             evt.preventDefault();
@@ -108,6 +99,9 @@
             posHighscore += 1;
         }
         highscores.splice(posHighscore, 0, score);
+        if(posHighscore <10){
+            sendToSerever(posHighscore);
+        }
         if (highscores.length > 10) {
             highscores.length = 10;
         }
@@ -168,6 +162,7 @@
         aDie.src = 'sound/dies.m4a';
         eWall.src ='image/walls.png';
         back.src = 'image/background.png';
+        logo.src = 'image/logo.png'
         // Create food
         food = new Rectangle(80, 80, 10, 10);
         food2 = new Rectangle(120, 1000, 10, 10);
@@ -190,8 +185,9 @@
         // Draw title
         ctx.fillStyle = '#fff';
         ctx.textAlign = 'center';
-        ctx.fillText('SNAKE', 150, 60);
-        ctx.fillText('Press Enter', 150, 90);
+        ctx.fillText('SNAKE', 250, 60);
+        ctx.fillText('Press Enter', 250, 90);
+        ctx.drawImage(logo,200,100)
     };
     mainScene.act = function () {
         // Load next scene
@@ -248,9 +244,9 @@
         if (pause) {
             ctx.textAlign = 'center';
             if (gameover) {
-                ctx.fillText('GAME OVER', 150, 75);
+                ctx.fillText('GAME OVER',250 , 125);
             } else {
-                ctx.fillText('PAUSE', 150, 75);
+                ctx.fillText('PAUSE', 250, 125);
             }
         }
     };
@@ -366,14 +362,14 @@
         // Draw title
         ctx.fillStyle = '#fff';
         ctx.textAlign = 'center';
-        ctx.fillText('HIGH SCORES', 150, 30);
+        ctx.fillText('HIGH SCORES', 250, 30);
         // Draw high scores
         ctx.textAlign = 'right';
         for (i = 0, l = highscores.length; i < l; i += 1) {
             if (i === posHighscore) {
-                ctx.fillText('*' + highscores[i], 180, 40 + i * 10);
+                ctx.fillText('*' + highscores[i], 250, 40 + i * 10);
             } else {
-                ctx.fillText(highscores[i], 180, 40 + i * 10);
+                ctx.fillText(highscores[i], 250, 40 + i * 10);
             }
         }
     };
